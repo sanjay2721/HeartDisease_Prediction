@@ -186,7 +186,7 @@
                 oldpeak: parseFloat(document.getElementById('oldpeak').value)
             };
 
-            fetch('http://127.0.0.1:5000/predict', { // Change to backend URL if hosted
+            fetch('YOUR_NGROK_URL/predict', { // Change to backend URL if hosted
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
