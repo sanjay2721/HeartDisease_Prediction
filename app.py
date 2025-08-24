@@ -30,32 +30,39 @@ def get_ngrok_url():
 # Prediction endpoint
 @app.route('/predict', methods=['POST'])
 def predict():
+    """
+    Receives patient data, makes a prediction, and returns the result.
+    """
     try:
         data = request.json
-        if not data:
-            return jsonify({'error': 'No input data provided'}), 400
-
-        # Convert to DataFrame and ensure feature order
+        
+        # Convert input JSON into DataFrame with correct feature order
         df_input = pd.DataFrame([data])
         df_input = df_input.reindex(columns=feature_names, fill_value=0)
 
-        # Scale features
-        df_scaled = scaler.transform(df_input)
+        # Keep DataFrame format when scaling
+        df_scaled = pd.DataFrame(
+            scaler.transform(df_input),
+            columns=feature_names
+        )
 
-        # Make prediction and probability
+        # Make prediction and get probability
         prediction = rf_model.predict(df_scaled)[0]
-        prediction_proba = rf_model.predict_proba(df_scaled)[0][1]
+        prediction_proba = rf_model.predict_proba(df_scaled)
 
+        # Format the response
         result_string = "Heart Disease" if prediction == 1 else "No Heart Disease"
-        risk_score = f"{prediction_proba*100:.2f}%"
+        risk_score = f"{prediction_proba[0][1]*100:.2f}%"
 
         response = {
             'prediction': result_string,
             'score': risk_score,
-            'top_factors': []  # Placeholder for SHAP/LIME
+            'top_factors': []  # Simplified, no LIME here
         }
+        print("Received data:", data)
+        print("Prediction:", prediction, "Score:", risk_score)
         return jsonify(response)
-
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

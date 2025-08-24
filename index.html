@@ -13,6 +13,7 @@
         button:hover { background:linear-gradient(90deg,#e74c3c,#c0392b); }
         .result { margin-top:20px; padding:15px; background:#f0f4f8; border-left:5px solid #c0392b; border-radius:6px; }
     </style>
+    <link rel="icon" href="data:,">
 </head>
 <body>
 <h1>Heart Disease Risk Prediction</h1>
@@ -75,12 +76,12 @@
 </div>
 
 <script>
-let backendURL = 'http://localhost:5000';
+let backendURL = 'https://e389872661dc.ngrok-free.app';
 
 // Optional: fetch ngrok URL dynamically
-fetch(`${backendURL}/ngrok-url`).then(r=>r.json()).then(data=>{
-    if(data.ngrok_url) backendURL = data.ngrok_url;
-}).catch(e=>console.log('Using localhost backend:', e));
+// fetch(`${backendURL}/ngrok-url`).then(r=>r.json()).then(data=>{
+//     if(data.ngrok_url) backendURL = data.ngrok_url;
+// }).catch(e=>console.log('Using localhost backend:', e));
 
 document.getElementById('predictBtn').addEventListener('click', ()=>{
     const data = {
