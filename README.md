@@ -1,14 +1,19 @@
 # HeartDisease_Prediction
 
-#Execution 
+# Execution 
 
 #run app.py in one terminal
 
 command:python app.py
 
-#run ngrok
+# run ngrok
 
 command:.\ngrok.exe http 5000
+
+# start local server
+
+command: python -m http.server 8000
+
 
 #open the webpage
 
