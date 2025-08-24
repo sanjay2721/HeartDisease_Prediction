@@ -2,55 +2,62 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import joblib
+import requests
 
-# Initialize Flask app and enable CORS
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/predict": {"origins": "*"}}, supports_credentials=True)
 
 # Load the model and scaler
 try:
     rf_model = joblib.load('model.pkl')
     scaler = joblib.load('scaler.pkl')
-    feature_names = scaler.feature_names_in_
+    feature_names = list(scaler.feature_names_in_)  # Ensure it's a list
     print("Model and scaler loaded successfully!")
 except FileNotFoundError:
     print("ERROR: Model or scaler file not found. Please upload 'model.pkl' and 'scaler.pkl'.")
     exit()
 
+# Endpoint to get current ngrok URL
+@app.route('/ngrok-url', methods=['GET'])
+def get_ngrok_url():
+    try:
+        tunnels = requests.get('http://127.0.0.1:4040/api/tunnels').json()
+        public_url = tunnels['tunnels'][0]['public_url']
+        return jsonify({"ngrok_url": public_url})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Prediction endpoint
 @app.route('/predict', methods=['POST'])
 def predict():
-    """
-    Receives patient data, makes a prediction, and returns the result.
-    """
     try:
         data = request.json
-        
-        # Convert input JSON to a DataFrame
-        df_input = pd.DataFrame([data], columns=data.keys())
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
 
-        # Preprocess the data to match the training format
-        df_preprocessed = df_input.copy()
-        df_preprocessed = df_preprocessed.reindex(columns=feature_names, fill_value=0)
-        df_scaled = scaler.transform(df_preprocessed)
-        
-        # Make prediction and get probability
+        # Convert to DataFrame and ensure feature order
+        df_input = pd.DataFrame([data])
+        df_input = df_input.reindex(columns=feature_names, fill_value=0)
+
+        # Scale features
+        df_scaled = scaler.transform(df_input)
+
+        # Make prediction and probability
         prediction = rf_model.predict(df_scaled)[0]
-        prediction_proba = rf_model.predict_proba(df_scaled)
-        
-        # Format the response
+        prediction_proba = rf_model.predict_proba(df_scaled)[0][1]
+
         result_string = "Heart Disease" if prediction == 1 else "No Heart Disease"
-        risk_score = f"{prediction_proba[0][1]*100:.2f}%"
+        risk_score = f"{prediction_proba*100:.2f}%"
 
         response = {
             'prediction': result_string,
             'score': risk_score,
-            'top_factors': [] # Simplified, LIME is not included in this server-side script
+            'top_factors': []  # Placeholder for SHAP/LIME
         }
         return jsonify(response)
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Run the Flask server on port 5000
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

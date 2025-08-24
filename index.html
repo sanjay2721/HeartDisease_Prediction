@@ -1,210 +1,120 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <title>Heart Disease Risk Prediction</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #f7f9fc, #e8eff5);
-            padding: 20px;
-            color: #333;
-        }
-
-        h1 {
-            text-align: center;
-            color: #c0392b;
-        }
-
-        .container {
-            max-width: 500px;
-            background: white;
-            padding: 25px;
-            margin: auto;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        label {
-            display: block;
-            margin-top: 12px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: #c0392b;
-            box-shadow: 0 0 6px rgba(192, 57, 43, 0.3);
-            outline: none;
-        }
-
-        button {
-            background: linear-gradient(90deg, #c0392b, #e74c3c);
-            color: white;
-            font-weight: bold;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: transform 0.2s ease, background 0.3s ease;
-            width: 100%;
-        }
-
-        button:hover {
-            background: linear-gradient(90deg, #e74c3c, #c0392b);
-            transform: scale(1.03);
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f4f8;
-            border-left: 5px solid #c0392b;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #333;
-            transition: background 0.3s ease;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-        }
+        body { font-family: Arial,sans-serif; background: linear-gradient(135deg,#f7f9fc,#e8eff5); padding:20px; color:#333; }
+        h1 { text-align:center; color:#c0392b; }
+        .container { max-width:500px; background:white; padding:25px; margin:auto; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+        label { display:block; margin-top:12px; font-weight:bold; color:#555; }
+        input, select { width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:6px; font-size:14px; }
+        button { background:linear-gradient(90deg,#c0392b,#e74c3c); color:white; font-weight:bold; padding:12px; border:none; border-radius:6px; cursor:pointer; margin-top:15px; width:100%; }
+        button:hover { background:linear-gradient(90deg,#e74c3c,#c0392b); }
+        .result { margin-top:20px; padding:15px; background:#f0f4f8; border-left:5px solid #c0392b; border-radius:6px; }
     </style>
 </head>
-
 <body>
+<h1>Heart Disease Risk Prediction</h1>
+<div class="container">
+    <label for="age">Age:</label>
+    <input type="number" id="age" placeholder="Enter Age" required>
+    
+    <label>Sex:</label>
+    <select id="sex" required>
+        <option value="" disabled selected>Select Sex</option>
+        <option value="0">Female</option>
+        <option value="1">Male</option>
+    </select>
 
-    <h1>Heart Disease Risk Prediction</h1>
+    <label>Chest Pain Type (cp):</label>
+    <select id="cp" required>
+        <option value="" disabled selected>Select Chest Pain Type</option>
+        <option value="0">Typical Angina</option>
+        <option value="1">Atypical Angina</option>
+        <option value="2">Non-anginal Pain</option>
+        <option value="3">Asymptomatic</option>
+    </select>
 
-    <div class="container">
-        <label for="age">Age:</label>
-        <input type="number" id="age" placeholder="Enter Age" required>
+    <label for="trestbps">Resting Blood Pressure:</label>
+    <input type="number" id="trestbps" placeholder="Enter Resting BP" required>
 
+    <label for="chol">Cholesterol (mg/dl):</label>
+    <input type="number" id="chol" placeholder="Enter Cholesterol" required>
 
-        <label>Sex:</label>
-        <select id="sex" required>
-            <option value="" disabled selected>Select Sex</option>
-            <option value="0">Female</option>
-            <option value="1">Male</option>
-        </select>
+    <label>Fasting Blood Sugar >120 mg/dl:</label>
+    <select id="fbs" required>
+        <option value="" disabled selected>Select Option</option>
+        <option value="0">No</option>
+        <option value="1">Yes</option>
+    </select>
 
-        <label>Chest Pain Type (cp):</label>
-        <select id="cp" required>
-            <option value="" disabled selected>Select Chest Pain Type</option>
-            <option value="0">Typical Angina</option>
-            <option value="1">Atypical Angina</option>
-            <option value="2">Non-anginal Pain</option>
-            <option value="3">Asymptomatic</option>
-        </select>
+    <label>Resting ECG:</label>
+    <select id="restecg" required>
+        <option value="" disabled selected>Select ECG Result</option>
+        <option value="0">Normal</option>
+        <option value="1">ST-T Wave Abnormality</option>
+        <option value="2">Left Ventricular Hypertrophy</option>
+    </select>
 
-        <label for="trestbps">Resting Blood Pressure (trestbps) (mmHg):</label>
-        <input type="number" id="trestbps" placeholder="Enter Resting Blood Pressure" required>
+    <label for="thalach">Maximum Heart Rate:</label>
+    <input type="number" id="thalach" placeholder="Enter Max Heart Rate" required>
 
-        <label for="chol">Cholesterol (chol) (mg/dl):</label>
-        <input type="number" id="chol" placeholder="Enter Cholesterol" required>
+    <label>Exercise-induced Angina:</label>
+    <select id="exang" required>
+        <option value="" disabled selected>Select Option</option>
+        <option value="0">No</option>
+        <option value="1">Yes</option>
+    </select>
 
-        <label>Fasting Blood Sugar > 120 mg/dl (fbs):</label>
-        <select id="fbs" required>
-            <option value="" disabled selected>Select Option</option>
-            <option value="0">No</option>
-            <option value="1">Yes</option>
-        </select>
+    <label for="oldpeak">ST Depression (oldpeak):</label>
+    <input type="number" id="oldpeak" placeholder="Enter ST Depression" step="0.1" required>
 
-        <label>Resting ECG Results (restecg):</label>
-        <select id="restecg" required>
-            <option value="" disabled selected>Select ECG Result</option>
-            <option value="0">Normal</option>
-            <option value="1">ST-T Wave Abnormality</option>
-            <option value="2">Left Ventricular Hypertrophy</option>
-        </select>
+    <button id="predictBtn">Predict Risk</button>
+    <div class="result" id="result">Enter details and click Predict.</div>
+</div>
 
-        <label for="thalach">Maximum Heart Rate Achieved (thalach):</label>
-        <input type="number" id="thalach" placeholder="Enter Maximum Heart Rate" required>
+<script>
+let backendURL = 'http://localhost:5000';
 
-        <label>Exercise-induced Angina (exang):</label>
-        <select id="exang" required>
-            <option value="" disabled selected>Select Option</option>
-            <option value="0">No</option>
-            <option value="1">Yes</option>
-        </select>
+// Optional: fetch ngrok URL dynamically
+fetch(`${backendURL}/ngrok-url`).then(r=>r.json()).then(data=>{
+    if(data.ngrok_url) backendURL = data.ngrok_url;
+}).catch(e=>console.log('Using localhost backend:', e));
 
-        <label for="oldpeak">ST Depression (oldpeak):</label>
-        <input type="number" id="oldpeak" placeholder="Enter ST Depression" step="0.1" required>
+document.getElementById('predictBtn').addEventListener('click', ()=>{
+    const data = {
+        age: parseInt(document.getElementById('age').value),
+        sex: parseInt(document.getElementById('sex').value),
+        cp: parseInt(document.getElementById('cp').value),
+        trestbps: parseInt(document.getElementById('trestbps').value),
+        chol: parseInt(document.getElementById('chol').value),
+        fbs: parseInt(document.getElementById('fbs').value),
+        restecg: parseInt(document.getElementById('restecg').value),
+        thalach: parseInt(document.getElementById('thalach').value),
+        exang: parseInt(document.getElementById('exang').value),
+        oldpeak: parseFloat(document.getElementById('oldpeak').value)
+    };
 
-        <button id="predictBtn">Predict Risk</button>
-
-        <div class="result" id="result">
-            Enter details and click Predict to see results.
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('predictBtn').addEventListener('click', function () {
-            const data = {
-                age: parseInt(document.getElementById('age').value),
-                sex: parseInt(document.getElementById('sex').value),
-                cp: parseInt(document.getElementById('cp').value),
-                trestbps: parseInt(document.getElementById('trestbps').value),
-                chol: parseInt(document.getElementById('chol').value),
-                fbs: parseInt(document.getElementById('fbs').value),
-                restecg: parseInt(document.getElementById('restecg').value),
-                thalach: parseInt(document.getElementById('thalach').value),
-                exang: parseInt(document.getElementById('exang').value),
-                oldpeak: parseFloat(document.getElementById('oldpeak').value)
-            };
-
-            fetch('YOUR_NGROK_URL/predict', { // Change to backend URL if hosted
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-                .then(res => res.json())
-                .then(result => {
-                    document.getElementById('result').innerHTML = `
-                    <strong>Prediction:</strong> ${result.prediction} <br>
-                    <strong>Risk Score:</strong> ${result.score} <br>
-                    <strong>Top Factors:</strong> ${result.top_factors ? result.top_factors.join(', ') : 'N/A'}
-                `;
-                })
-                .catch(err => {
-                    document.getElementById('result').innerHTML = `<span style="color:red;">Error: ${err}</span>`;
-                });
-        });
-    </script>
-
+    fetch(`${backendURL}/predict`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(res=>res.json())
+    .then(result=>{
+        console.log("Backend result:", result);
+        document.getElementById('result').innerHTML=`
+            <strong>Prediction:</strong> ${result.prediction || 'N/A'}<br>
+            <strong>Risk Score:</strong> ${result.score || 'N/A'}<br>
+            <strong>Top Factors:</strong> ${result.top_factors ? result.top_factors.join(', ') : 'N/A'}
+        `;
+    })
+    .catch(err=>{
+        console.error(err);
+        document.getElementById('result').innerHTML=`<span style="color:red;">Error: ${err}</span>`;
+    });
+});
+</script>
 </body>
-
 </html>
