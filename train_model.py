@@ -7,7 +7,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import lime
 import lime.lime_tabular
 import shap
@@ -106,8 +107,20 @@ y_pred_rf = rf_pipeline.predict(X_test)
 accuracy_rf = accuracy_score(y_test, y_pred_rf)
 print(f"Random Forest Accuracy: {accuracy_rf:.4f}")
 
+# --- TRAIN XGBOOST ---
+print("\n5. Training XGBoost model...")
+xgb_pipeline = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('classifier', XGBClassifier(random_state=42, n_estimators=100, use_label_encoder=False, eval_metric='logloss'))
+])
+
+xgb_pipeline.fit(X_train, y_train)
+y_pred_xgb = xgb_pipeline.predict(X_test)
+accuracy_xgb = accuracy_score(y_test, y_pred_xgb)
+print(f"XGBoost Accuracy: {accuracy_xgb:.4f}")
+
 # --- PREPARE FOR EXPLAINABILITY ---
-print("\n5. Preparing for model explainability...")
+print("\n6. Preparing for model explainability...")
 
 # Fit the preprocessor on the training data
 preprocessor.fit(X_train)
@@ -122,10 +135,11 @@ print(f"Original features: {len(X.columns)}")
 print(f"Transformed features: {len(all_feature_names)}")
 
 # --- SAVE MODELS AND DATA ---
-print("\n6. Saving models and data...")
+print("\n7. Saving models and data...")
 
 joblib.dump(lr_pipeline, 'logistic_regression_model.pkl')
 joblib.dump(rf_pipeline, 'random_forest_model.pkl')
+joblib.dump(xgb_pipeline, 'xgboost_model.pkl')
 
 app_data = {
     'numerical_cols': numerical_cols,
@@ -144,16 +158,20 @@ print("""
 Files created:
 - logistic_regression_model.pkl
 - random_forest_model.pkl
+- xgboost_model.pkl
 - app_config.pkl
 """)
 
 # --- FINAL EVALUATION ---
-print("\n7. Final model evaluation:")
+print("\n8. Final model evaluation:")
 print(f"\nLogistic Regression Performance:")
 print(classification_report(y_test, y_pred_lr))
 
 print(f"\nRandom Forest Performance:")
 print(classification_report(y_test, y_pred_rf))
+
+print(f"\nXGBoost Performance:")
+print(classification_report(y_test, y_pred_xgb))
 
 print("\n=== Model Training Complete ===")
 print("You can now run the Streamlit app with: streamlit run app.py")

@@ -15,7 +15,7 @@ import base64
 # Set page config
 st.set_page_config(
     page_title="Explainable AI for Heart Disease Prediction",
-    page_icon="🫀",
+    page_icon="❤️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -51,17 +51,18 @@ def load_models():
     try:
         lr_model = joblib.load('logistic_regression_model.pkl')
         rf_model = joblib.load('random_forest_model.pkl')
+        xgb_model = joblib.load('xgboost_model.pkl')
         app_config = joblib.load('app_config.pkl')
-        return lr_model, rf_model, app_config
+        return lr_model, rf_model, xgb_model, app_config
     except FileNotFoundError as e:
         st.error(f"❌ Model files not found: {e}")
         st.info("Please run train_model.py first to generate the model files.")
-        return None, None, None
+        return None, None, None, None
 
-lr_model, rf_model, app_config = load_models()
+lr_model, rf_model, xgb_model, app_config = load_models()
 
 # App title
-st.markdown('<h1 class="main-header">🫀 Explainable AI for Heart Disease Prediction</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-header">❤️ Explainable AI for Heart Disease Prediction</h1>', unsafe_allow_html=True)
 st.markdown("""
 This app predicts the likelihood of heart disease using machine learning models trained on the Cleveland dataset, 
 with model interpretation using SHAP and LIME for explainable AI.
@@ -73,7 +74,7 @@ st.sidebar.header("⚙️ Configuration")
 # Model selection
 model_choice = st.sidebar.selectbox(
     "Select Prediction Model",
-    ["Logistic Regression", "Random Forest"],
+    ["Logistic Regression", "Random Forest", "XGBoost"],
     help="Choose which machine learning model to use for predictions"
 )
 
@@ -141,10 +142,15 @@ st.dataframe(input_df.style.format("{:.1f}"), use_container_width=True)
 
 # Prediction button
 if st.sidebar.button('🔍 Predict Heart Disease', type='primary', use_container_width=True):
-    if lr_model is not None and rf_model is not None:
+    if lr_model is not None and rf_model is not None and xgb_model is not None:
         try:
             # Select model
-            model = lr_model if model_choice == "Logistic Regression" else rf_model
+            if model_choice == "Logistic Regression":
+                model = lr_model
+            elif model_choice == "Random Forest":
+                model = rf_model
+            else:  # XGBoost
+                model = xgb_model
             
             # Make prediction
             prediction = model.predict(input_df)
@@ -158,7 +164,7 @@ if st.sidebar.button('🔍 Predict Heart Disease', type='primary', use_container
             
             with col1:
                 st.markdown('<div class="prediction-box">', unsafe_allow_html=True)
-                result = "🫀 Heart Disease Detected" if prediction[0] == 1 else "✅ No Heart Disease"
+                result = "❤️ Heart Disease Detected" if prediction[0] == 1 else "✅ No Heart Disease"
                 st.metric("Prediction", result)
                 st.markdown('</div>', unsafe_allow_html=True)
             
@@ -246,7 +252,9 @@ if st.sidebar.button('🔍 Predict Heart Disease', type='primary', use_container
                     # Create a SHAP explainer
                     if model_choice == "Logistic Regression":
                         explainer = shap.LinearExplainer(model_for_shap, input_transformed, feature_names=feature_names)
-                    else:
+                    elif model_choice == "Random Forest":
+                        explainer = shap.TreeExplainer(model_for_shap)
+                    else:  # XGBoost
                         explainer = shap.TreeExplainer(model_for_shap)
                     
                     # Calculate SHAP values
@@ -301,10 +309,7 @@ if st.sidebar.button('🔍 Predict Heart Disease', type='primary', use_container
                     def predict_proba_wrapper(x):
                         # The input to LIME is already in the transformed space
                         # We need to use the model's predict_proba directly
-                        if model_choice == "Logistic Regression":
-                            return model.named_steps['classifier'].predict_proba(x)
-                        else:
-                            return model.named_steps['classifier'].predict_proba(x)
+                        return model.named_steps['classifier'].predict_proba(x)
                     
                     # Create a LIME explainer with the transformed training data
                     X_train_transformed = preprocessor.transform(app_config['X_train'])
@@ -354,7 +359,7 @@ st.sidebar.markdown("---")
 st.sidebar.header("ℹ️ About")
 st.sidebar.info("""
 **Dataset:** Cleveland Heart Disease  
-**Models:** Logistic Regression & Random Forest  
+**Models:** Logistic Regression, Random Forest & XGBoost  
 **XAI Methods:** SHAP & LIME  
 
 **Note:** This is for educational purposes only.
